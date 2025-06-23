@@ -15,8 +15,11 @@ resource "aws_internet_gateway" "igw" {
 }
 
 resource "aws_eip" "nat_eip" {
-  vpc = true
+  tags = {
+    Name = "terraform-nat-eip"
+  }
 }
+
 
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.main.id
