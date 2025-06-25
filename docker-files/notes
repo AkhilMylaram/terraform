@@ -1,0 +1,4 @@
+How to build:
+Run the following command from your project root (~/terraform):
+docker build -t app:v1 -f docker-files/app/Dockerfile .
+
