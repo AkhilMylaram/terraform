@@ -2,3 +2,8 @@ How to build:
 Run the following command from your project root (~/terraform):
 docker build -t app:v1 -f docker-files/app/Dockerfile .
 
+buid the docker images with names below 
+release-1
+vproapp-buildNO
+vprodb-buildno
+

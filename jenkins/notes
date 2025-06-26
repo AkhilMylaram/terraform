@@ -1,0 +1,27 @@
+Yes, you need to install Trivy on your Jenkins agent/server for the Scan Docker Image stage to work.
+Trivy is a command-line tool and must be available in the system PATH where the Jenkins job runs.
+
+What you need to do:
+Install Trivy on your Jenkins agent/server
+For Ubuntu, run:
+
+
+
+sudo apt-get install wget apt-transport-https gnupg lsb-release
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+sudo apt-get update
+sudo apt-get install trivy
+
+
+No extra Jenkins configuration is needed
+As long as Trivy is installed and available in the PATH, your pipeline stage will work.
+
+(Optional) Test Trivy installation
+Run trivy --version on your Jenkins agent/server to confirm it is installed.
+
+Summary:
+You must install Trivy on the Jenkins agent/server. No special Jenkins configuration is needed beyond that.
+
+
+

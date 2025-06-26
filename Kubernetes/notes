@@ -1,0 +1,9 @@
+app mount data of volume path is 
+hostPath:
+    path: /mnt/data
+
+db mount data
+hostPath:
+            path: /mnt/data
+            
+

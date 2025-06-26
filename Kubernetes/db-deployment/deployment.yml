@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vproapp-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vproapp-db
+  template:
+    metadata:
+      labels:
+        app: vproapp-db
+    spec:
+      containers:
+        - name: vproapp-db
+          image: vproapp-db-image
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysecret
+                  key: password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: myconfig
+                  key: database
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/mysql
+          volumes:
+            - name: db-storage
+              persistentVolumeClaim:
+                claimName: db-pvc
