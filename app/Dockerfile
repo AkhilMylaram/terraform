@@ -7,7 +7,7 @@ RUN mvn clean package -DskipTests
 # Stage 2: Deploy the WAR to Tomcat
 FROM tomcat:9.0-jdk17
 WORKDIR /usr/local/tomcat/webapps/
-COPY --from=builder /app/target/*.war app.war
+COPY --from=builder /app/target/*.war ROOT.war
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
