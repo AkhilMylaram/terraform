@@ -4,9 +4,10 @@ WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Stage 2: Run the application
-FROM eclipse-temurin:17-jre
-WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
+# Stage 2: Deploy the WAR to Tomcat
+FROM tomcat:9.0-jdk17
+WORKDIR /usr/local/tomcat/webapps/
+COPY --from=builder /app/target/*.war app.war
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["catalina.sh", "run"]
