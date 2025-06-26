@@ -24,6 +24,9 @@ services:
       - "8080:8080"
     depends_on:
       - vprodb
+      - vpromq01
+      - vprocache01
+      - vprocache02
     networks:
       - vproappnet
       - vprodbnet
@@ -55,36 +58,6 @@ services:
       RABBITMQ_DEFAULT_PASS: guest
     networks:
       - vproappnet
-
-  vproesearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
-    container_name: vproesearch
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      - xpack.security.enabled=false
-    ports:
-      - "9201:9200"
-      - "9301:9300"
-    networks:
-      - vproappnet
-
-  vprosearch01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.22
-    container_name: vprosearch01
-    environment:
-      - discovery.type=single-node
-      - cluster.name=vprofile
-      - node.name=vprofilenode
-      - network.host=0.0.0.0
-      - http.port=9200
-      - transport.port=9300
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    networks:
-      - vproappnet
-
 networks:
   vproappnet:
   vprodbnet:

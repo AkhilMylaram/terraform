@@ -1,0 +1,20 @@
+add the elastic search if you need
+but it takes the lot of ram 
+we set the limit 
+
+  vprosearch01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.22
+    container_name: vprosearch01
+    environment:
+      - discovery.type=single-node
+      - cluster.name=vprofile
+      - node.name=vprofilenode
+      - network.host=0.0.0.0
+      - http.port=9200
+      - transport.port=9300
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m   # Limit heap to 512MB
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - vproappnet
