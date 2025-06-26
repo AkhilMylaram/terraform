@@ -4,34 +4,45 @@ services:
     build:
       context: ./db
       dockerfile: Dockerfile
+    image: vprodb:latest
     container_name: vprodb
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: vprodbpass
       MYSQL_DATABASE: accounts
+    networks:
+      - vprodbnet
 
   vproapp:
     build:
       context: ./app
       dockerfile: Dockerfile
+    image: vproapp:latest
     container_name: vproapp
     ports:
       - "8080:8080"
     depends_on:
       - vprodb
+    networks:
+      - vproappnet
+      - vprodbnet
 
   vprocache01:
     image: memcached:latest
     container_name: vprocache01
     ports:
       - "11211:11211"
+    networks:
+      - vproappnet
 
   vprocache02:
     image: memcached:latest
     container_name: vprocache02
     ports:
       - "11212:11211"
+    networks:
+      - vproappnet
 
   vpromq01:
     image: rabbitmq:3-management
@@ -42,3 +53,9 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - vproappnet
+
+networks:
+  vproappnet:
+  vprodbnet:
