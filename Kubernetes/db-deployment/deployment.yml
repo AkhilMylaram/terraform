@@ -38,7 +38,8 @@ spec:
           volumeMounts:
             - name: db-storage
               mountPath: /var/lib/mysql
-          volumes:
-            - name: db-storage
-              persistentVolumeClaim:
-                claimName: db-pvc
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: db-pvc
+            
