@@ -1,3 +1,14 @@
+ # scheduled on a separate node, use taints and tolerations, node affinity, or nodeSelector below.
+# This strategy ensures that the workload is scheduled on a dedicated node by using taints and tolerations, node affinity, or nodeSelector.
+# 
+# Use:
+# - Taints and tolerations prevent other pods from being scheduled on the node unless they tolerate the taint, ensuring exclusive or controlled access.
+# - Node affinity and nodeSelector allow targeting specific nodes based on labels, ensuring the workload runs on nodes with desired characteristics.
+#
+# Advantage:
+# - Provides workload isolation, improving security and performance.
+# - Enables resource guarantees and reduces contention with other workloads.
+# - Facilitates compliance with hardware, licensing, or operational requirements.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
