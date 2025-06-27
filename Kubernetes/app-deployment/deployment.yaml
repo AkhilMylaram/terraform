@@ -24,10 +24,5 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
-          volumeMounts:
-            - name: app-storage
-              mountPath: /usr/local/tomcat/webapps
-      volumes:
-        - name: app-storage
-          persistentVolumeClaim:
-            claimName: vproapp-pvc
+        
+      

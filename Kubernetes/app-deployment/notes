@@ -1,0 +1,109 @@
+## Docker Images vs. Artifact Repositories (Nexus, Artifactory) in Production
+
+### 1. Docker Images (Docker Hub, ECR, etc.)
+- In modern CI/CD, the **Docker image** is the deployable unit.
+- The image contains your built artifact (e.g., WAR, JAR) and all dependencies.
+- Images are stored and pulled from a Docker registry (Docker Hub, ECR, GCR, etc.).
+- **No need to store the artifact separately on the host or in the container at runtime**—it’s already inside the image.
+
+### 2. Artifact Repositories (Nexus, Artifactory, etc.)
+- Used to store **build artifacts** (WAR, JAR, ZIP, etc.) produced by your CI pipeline.
+- Also used as a **cache/proxy** for dependencies (Maven Central, npm, PyPI, etc.).
+- **Use cases:**
+  - Keep a history of all builds/artifacts for traceability, rollback, or compliance.
+  - Allow other teams or jobs to download the artifact (for further testing, packaging, or deployment).
+  - Promote artifacts through environments (dev → QA → prod).
+  - Build Docker images from pre-built artifacts (e.g., download WAR from Nexus, then build image).
+
+---
+
+### Typical Production Flow
+
+1. **Build Stage:**  
+   - CI builds the artifact (WAR/JAR).
+   - Artifact is uploaded to Nexus/Artifactory.
+
+2. **Image Build Stage:**  
+   - CI builds a Docker image, often using the artifact from Nexus.
+   - Image is pushed to Docker Hub/ECR.
+
+3. **Deploy Stage:**  
+   - Kubernetes/Swarm pulls the Docker image from the registry.
+   - No need to mount or copy the artifact separately.
+
+---
+
+### Summary Table
+
+| Storage             | What is stored?           | Used for?                                      |
+|---------------------|--------------------------|------------------------------------------------|
+| Docker Registry     | Docker images             | Deployment to Kubernetes/Swarm, runtime usage  |
+| Nexus/Artifactory   | Build artifacts (WAR/JAR), dependencies | Artifact history, sharing, dependency caching   |
+
+---
+
+**In production:**
+- You deploy Docker images, not raw artifacts.
+- Nexus/Artifactory is still valuable for artifact management, traceability, and as a dependency proxy/cache.
+
+---
+
+**Bottom line:**  
+- **You don’t need to store the artifact on the host in production if you use Docker images.**
+- **Nexus/Artifactory is still important for artifact lifecycle, compliance, and as a dependency proxy/cache.**
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+### Explanation of Key Kubernetes Deployment Fields
+
+#### **livenessProbe**
+```yaml
+livenessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+```
+- **Purpose:** Checks if your app is running and healthy.
+- **How it works:** Kubernetes sends an HTTP GET to `/` on port 8080 every 10 seconds (after a 30-second delay).
+- **If it fails:** Kubernetes restarts the container.
+- **Why:** Ensures automatic recovery if your app hangs or crashes.
+
+---
+
+#### **readinessProbe**
+```yaml
+readinessProbe:
+  httpGet:
+    path: /
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+```
+- **Purpose:** Checks if your app is ready to serve traffic.
+- **How it works:** Kubernetes checks `/` on port 8080 every 5 seconds (after a 10-second delay).
+- **If it fails:** The pod is marked “not ready” and does not receive traffic.
+- **Why:** Prevents traffic from reaching your app before it’s fully started or during restarts.
+
+---
+
+#### **securityContext**
+```yaml
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+```
+- **Purpose:** Runs your app as a non-root user inside the container.
+- **How it works:** The process runs as user ID 1000, not root.
+- **Why:** Improves security by reducing the risk of privilege escalation.
+
+---
+
+#### **Summary Table**
+
+| Section         | Why Use It?                                                                 |
+|-----------------|------------------------------------------------------------------------------|
+| livenessProbe   | Auto-restarts your app if it hangs or crashes (self-healing).                |
+| readinessProbe  | Ensures traffic only goes to healthy, ready pods (no failed requests).        |
+| securityContext | Runs your app as a non-root user for better security (limits attack surface). |     
