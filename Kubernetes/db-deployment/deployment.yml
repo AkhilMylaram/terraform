@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: vproapp-db
-          image: vproapp-db-image
+          image: akhilmylaram/vprofile-db:latest
           ports:
             - containerPort: 3306
           env:
