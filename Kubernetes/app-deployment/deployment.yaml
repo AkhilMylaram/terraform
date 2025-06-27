@@ -12,24 +12,9 @@ spec:
       labels:
         app: vproapp
     spec:
-      # This initContainer named 'fix-permissions' is used to ensure that the directory /usr/local/tomcat/webapps
-      # has the correct ownership (user and group 1000:1000) before the main application container starts.
-      # It runs as root (runAsUser: 0) to have the necessary permissions to change ownership.
-      # This is important when using persistent volumes that may have default root ownership,
-      # which can prevent the application (running as a non-root user) from writing to or reading from the directory.
-      # By fixing permissions at startup, we avoid permission issues and ensure the application runs smoothly.
-      initContainers:
-        - name: fix-permissions
-          image: busybox
-          command: ["sh", "-c", "chown -R 1000:1000 /usr/local/tomcat/webapps"]
-          securityContext:
-            runAsUser: 0
-          volumeMounts:
-            - name: webapps
-              mountPath: /usr/local/tomcat/webapps
       containers:
         - name: vproapp
-          image: akhilmylaram/vprofile-app:latest
+          image: akhilmylaram/vprofile-app:latest  # Use your updated non-root image tag if different
           ports:
             - containerPort: 8080
           resources:
@@ -39,6 +24,12 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
+          # The following configuration defines Kubernetes liveness and readiness probes for the application container.
+          # - The livenessProbe checks the /login endpoint on port 8080 every 10 seconds, starting 30 seconds after the container starts.
+          #   This ensures that the application is running and healthy; if the probe fails, Kubernetes will restart the container.
+          # - The readinessProbe checks the same /login endpoint on port 8080 every 5 seconds, starting 10 seconds after the container starts.
+          #   This determines when the application is ready to accept traffic; if the probe fails, the container will be removed from service endpoints.
+          # Using these probes helps maintain application availability and reliability by enabling automated health checks and recovery.
           livenessProbe:
             httpGet:
               path: /login
@@ -52,22 +43,9 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
           # The securityContext section ensures that the container runs as a non-root user for enhanced security.
-          # 'runAsNonRoot: true' enforces that the container cannot run as the root user.
-          # 'runAsUser: 1000' specifies a non-root user ID (1000) under which the container process will run.
-          # This helps to minimize potential security risks by restricting container privileges.
-          
-          # Running the application as a non-root user limits the permissions available to any attacker.
-          # Attackers cannot install additional software or vulnerabilities without root privileges.
-          # The non-root user is confined to specific directories, reducing the attack surface.
-          # System-level changes are prevented, minimizing potential damage from exploits.
-          # This security practice helps contain breaches and protects the underlying system.
-
+          # - runAsNonRoot: true enforces that the container process cannot run as the root user.
+          # - runAsUser: 1000 specifies the user ID the container process should run as, which must be a non-root user.
+          # These settings help to minimize the risk of privilege escalation attacks within the container.
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
-          volumeMounts:
-            - name: webapps
-              mountPath: /usr/local/tomcat/webapps
-      volumes:
-        - name: webapps
-          emptyDir: {}
