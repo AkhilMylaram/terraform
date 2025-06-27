@@ -1,4 +1,3 @@
-
 # Stage 1: Build the application
 FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
@@ -8,21 +7,28 @@ RUN mvn clean package -DskipTests
 # Stage 2: Use official Tomcat, run as non-root
 FROM tomcat:9.0-jdk17
 
-# Ensure the webapps directory exists and is owned by the tomcat user
-RUN mkdir -p /usr/local/tomcat/webapps && chown -R tomcat:tomcat /usr/local/tomcat/webapps
+# Create a non-root user (if you want a custom one)
+RUN useradd -u 1001 -m appuser
+
+# Ensure the webapps directory exists and is owned by the non-root user
+RUN mkdir -p /usr/local/tomcat/webapps && chown -R appuser:appuser /usr/local/tomcat/webapps
 
 # Copy the WAR and set correct ownership
 COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
-RUN chown tomcat:tomcat /usr/local/tomcat/webapps/ROOT.war
+RUN chown appuser:appuser /usr/local/tomcat/webapps/ROOT.war
 
-# Ensure tomcat user can create directories inside webapps
+# Ensure non-root user can create directories inside webapps
 RUN chmod -R 775 /usr/local/tomcat/webapps
 
-USER tomcat
+USER appuser
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
 
+# Create a non-root user and group (UID/GID 1000 is a common convention)
+# Create a non-root user and group (UID/GID 1000 is a common convention)
+# Using a non-root user limits the permissions available inside the container.
+# Running as non-root is a best practice for container security.
 # This Dockerfile follows security best practices by avoiding the use of the root user.
 
 # Using a non-root user in this container provides several security benefits:
