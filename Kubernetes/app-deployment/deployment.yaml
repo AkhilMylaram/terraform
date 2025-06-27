@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: vproapp
-          image: akhilmylaram/vprofile-app:latest  # Use your updated non-root image tag if different
+          image: akhilmylaram/vprofile-app:v1  # Use your updated non-root image tag if different
           ports:
             - containerPort: 8080
           resources:
