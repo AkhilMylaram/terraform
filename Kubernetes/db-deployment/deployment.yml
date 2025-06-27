@@ -1,14 +1,3 @@
- # scheduled on a separate node, use taints and tolerations, node affinity, or nodeSelector below.
-# This strategy ensures that the workload is scheduled on a dedicated node by using taints and tolerations, node affinity, or nodeSelector.
-# 
-# Use:
-# - Taints and tolerations prevent other pods from being scheduled on the node unless they tolerate the taint, ensuring exclusive or controlled access.
-# - Node affinity and nodeSelector allow targeting specific nodes based on labels, ensuring the workload runs on nodes with desired characteristics.
-#
-# Advantage:
-# - Provides workload isolation, improving security and performance.
-# - Enables resource guarantees and reduces contention with other workloads.
-# - Facilitates compliance with hardware, licensing, or operational requirements.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,6 +12,20 @@ spec:
       labels:
         app: vproapp-db
     spec:
+      # The following initContainer 'fix-permissions' is used to ensure that the MySQL data directory
+      # (/var/lib/mysql) has the correct ownership (user and group 999, which is the default for MySQL containers).
+      # This is necessary because persistent volumes may be mounted with root ownership by default,
+      # which can prevent the MySQL container from writing to the directory. By running 'chown' as root
+      # in an initContainer, we ensure the main MySQL container can start without permission issues.
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 999:999 /var/lib/mysql"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/mysql
       containers:
         - name: vproapp-db
           image: akhilmylaram/vprofile-db:latest
@@ -64,6 +67,20 @@ spec:
                 - 127.0.0.1
             initialDelaySeconds: 10
             periodSeconds: 5
+          # The securityContext section ensures that the container runs as a non-root user for enhanced security.
+          # Setting runAsNonRoot: true enforces that the container cannot run as the root user.
+          # The runAsUser: 999 specifies the user ID under which the container process will run.
+          # In this case, 999 is used because it is the default user ID for the MySQL official Docker image.
+            # By running containers as non-root users, the potential impact of a security breach is significantly reduced. Non-root users have restricted permissions within the container, which means that even if an attacker manages to exploit a vulnerability and gain access to the container, their ability to perform malicious actions is limited. They cannot modify critical system files, install unauthorized software, or escalate privileges to gain control over the host system. This security best practice helps to contain attacks within the container and prevents lateral movement or privilege escalation, thereby enhancing the overall security posture of the deployment.
+            # Running containers as non-root users ensures that, even if an attacker compromises the container, they have limited permissions and cannot easily gain control over the host system or escalate privileges.
+            # my: Running containers as non-root users helps to minimize the risk of privilege escalation attacks.
+            # Privilege escalation attacks occur when an attacker exploits a vulnerability to gain elevated access within a container or host.
+          # Running the application as a non-root user limits the permissions available to any attacker.
+          # Attackers cannot install additional software or vulnerabilities without root privileges.
+          # The non-root user is confined to specific directories, reducing the attack surface.
+          # System-level changes are prevented, minimizing potential damage from exploits.
+          # This security practice helps contain breaches and protects the underlying system.
+        
           securityContext:
             runAsNonRoot: true
             runAsUser: 999  # MySQL official image uses 999

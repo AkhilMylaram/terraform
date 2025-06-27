@@ -12,6 +12,21 @@ spec:
       labels:
         app: vproapp
     spec:
+      # This initContainer named 'fix-permissions' is used to ensure that the directory /usr/local/tomcat/webapps
+      # has the correct ownership (user and group 1000:1000) before the main application container starts.
+      # It runs as root (runAsUser: 0) to have the necessary permissions to change ownership.
+      # This is important when using persistent volumes that may have default root ownership,
+      # which can prevent the application (running as a non-root user) from writing to or reading from the directory.
+      # By fixing permissions at startup, we avoid permission issues and ensure the application runs smoothly.
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /usr/local/tomcat/webapps"]
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: webapps
+              mountPath: /usr/local/tomcat/webapps
       containers:
         - name: vproapp
           image: akhilmylaram/vprofile-app:latest
@@ -36,6 +51,23 @@ spec:
               port: 8080
             initialDelaySeconds: 10
             periodSeconds: 5
+          # The securityContext section ensures that the container runs as a non-root user for enhanced security.
+          # 'runAsNonRoot: true' enforces that the container cannot run as the root user.
+          # 'runAsUser: 1000' specifies a non-root user ID (1000) under which the container process will run.
+          # This helps to minimize potential security risks by restricting container privileges.
+          
+          # Running the application as a non-root user limits the permissions available to any attacker.
+          # Attackers cannot install additional software or vulnerabilities without root privileges.
+          # The non-root user is confined to specific directories, reducing the attack surface.
+          # System-level changes are prevented, minimizing potential damage from exploits.
+          # This security practice helps contain breaches and protects the underlying system.
+
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
+          volumeMounts:
+            - name: webapps
+              mountPath: /usr/local/tomcat/webapps
+      volumes:
+        - name: webapps
+          emptyDir: {}
