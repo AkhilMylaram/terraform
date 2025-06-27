@@ -27,6 +27,9 @@ RUN mkdir -p /usr/local/tomcat/webapps && chown -R appuser:appuser /usr/local/to
 COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 RUN chown appuser:appuser /usr/local/tomcat/webapps/ROOT.war
 
+# Ensure appuser can create directories inside webapps
+RUN chmod -R 775 /usr/local/tomcat/webapps
+
 # Switches the current user to 'appuser' for all subsequent instructions, enhancing security by avoiding running as root.
 USER appuser
 
