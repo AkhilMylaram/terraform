@@ -35,6 +35,27 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "500m"
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - 127.0.0.1
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - 127.0.0.1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 999  # MySQL official image uses 999
           volumeMounts:
             - name: db-storage
               mountPath: /var/lib/mysql
@@ -42,4 +63,3 @@ spec:
         - name: db-storage
           persistentVolumeClaim:
             claimName: db-pvc
-            
