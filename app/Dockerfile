@@ -1,29 +1,22 @@
-# Stage 1: Build the application
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
-WORKDIR /app
-COPY . .
-RUN mvn clean package -DskipTests
-
-# Stage 2: Use official Tomcat, run as non-root
 FROM tomcat:9.0-jdk17
 
-# Create a non-root user (if you want a custom one)
-RUN useradd -u 1001 -m appuser
+# Create a non-root user (if not already present)
+RUN useradd -u 1000 -m appuser
 
-# Ensure the webapps directory exists and is owned by the non-root user
-RUN mkdir -p /usr/local/tomcat/webapps && chown -R appuser:appuser /usr/local/tomcat/webapps
+# Set ownership and permissions for the webapps directory
+RUN mkdir -p /usr/local/tomcat/webapps && \
+    chown -R appuser:appuser /usr/local/tomcat/webapps && \
+    chmod -R 775 /usr/local/tomcat/webapps
 
 # Copy the WAR and set correct ownership
 COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
 RUN chown appuser:appuser /usr/local/tomcat/webapps/ROOT.war
 
-# Ensure non-root user can create directories inside webapps
-RUN chmod -R 775 /usr/local/tomcat/webapps
-
 USER appuser
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
+
 
 # Create a non-root user and group (UID/GID 1000 is a common convention)
 # Create a non-root user and group (UID/GID 1000 is a common convention)
