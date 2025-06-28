@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: vproapp.local
+    - host: 98.82.12.216.nip.io
       http:
         paths:
           - path: /
