@@ -23,7 +23,7 @@ spec:
               mountPath: /var/lib/mysql
       containers:
         - name: vproapp-db
-          image: mysql:8.0
+          image: akhilmylaram/vprofile-db:v2
           ports:
             - containerPort: 3306
           env:
