@@ -1,3 +1,10 @@
+# Stage 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
+WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
+
+# Stage 2: Use official Tomcat, run as non-root
 FROM tomcat:9.0-jdk17
 
 # Create a non-root user (if not already present)
@@ -16,7 +23,6 @@ USER appuser
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
-
 
 # Create a non-root user and group (UID/GID 1000 is a common convention)
 # Create a non-root user and group (UID/GID 1000 is a common convention)
