@@ -39,16 +39,19 @@ spec:
               memory: "512Mi"
               cpu: "500m"
           readinessProbe:
-            exec:
-              command:
-                - rabbitmq-diagnostics
-                - check_port_connectivity
+            tcpSocket:
+              port: 5672
             initialDelaySeconds: 10
             periodSeconds: 10
+            failureThreshold: 6
           livenessProbe:
-            exec:
-              command:
-                - rabbitmq-diagnostics
-                - status
+            httpGet:
+              path: /api/healthchecks/node
+              port: 15672
+              httpHeaders:
+                - name: Authorization
+                  value: "Basic Z3Vlc3Q6Z3Vlc3Q="
             initialDelaySeconds: 20
             periodSeconds: 20
+            failureThreshold: 6
+            
