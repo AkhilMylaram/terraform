@@ -26,22 +26,16 @@ spec:
               cpu: "500m"
           livenessProbe:
             httpGet:
-              path: /login
+              path: /
               port: 8080
-              httpHeaders:
-                - name: Accept
-                  value: text/html
             initialDelaySeconds: 40
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 6
           readinessProbe:
             httpGet:
-              path: /login
+              path: /
               port: 8080
-              httpHeaders:
-                - name: Accept
-                  value: text/html
             initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 5
