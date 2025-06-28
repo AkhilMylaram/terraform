@@ -7,22 +7,23 @@ RUN mvn clean package -DskipTests
 # Stage 2: Use official Tomcat, run as non-root
 FROM tomcat:9.0-jdk17
 
-# Create a non-root user (if not already present)
-RUN useradd -u 1000 -m appuser
+# Create a non-root user and group (UID/GID 1010)
+RUN groupadd -g 1010 vprofile && useradd -u 1010 -g 1010 -d /home/vprofile -m vprofile
 
 # Set ownership and permissions for the webapps directory
 RUN mkdir -p /usr/local/tomcat/webapps && \
-    chown -R appuser:appuser /usr/local/tomcat/webapps && \
+    chown -R vprofile:vprofile /usr/local/tomcat/webapps && \
     chmod -R 775 /usr/local/tomcat/webapps
 
 # Copy the WAR and set correct ownership
 COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
-RUN chown appuser:appuser /usr/local/tomcat/webapps/ROOT.war
+RUN chown vprofile:vprofile /usr/local/tomcat/webapps/ROOT.war
 
-USER appuser
+USER vprofile
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
+
 
 # Create a non-root user and group (UID/GID 1000 is a common convention)
 # Create a non-root user and group (UID/GID 1000 is a common convention)
