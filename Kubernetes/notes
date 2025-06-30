@@ -282,6 +282,22 @@ RBAC
 Image Security
 CI/CD
 TLS
+# Service Mesh provides:
+# - Advanced traffic management: Intelligent routing, load balancing, circuit breaking, fault injection
+# - Enhanced security: Mutual TLS between services, fine-grained access control
+# - Deep observability: Detailed metrics, traces and logs for service-to-service communication
+# - API management: Rate limiting, quotas, authentication/authorization
+# - Common use cases:
+#   - Microservices architectures with many services
+#   - Zero-trust security requirements 
+#   - Need for detailed service monitoring
+#   - Complex traffic routing patterns
+# - Popular options:
+#   - Istio: Full featured but complex
+#   - Linkerd: Lightweight and easier to operate
+#   - AWS App Mesh: Native AWS integration
 Service Mesh (if needed)
+
+
 
 
