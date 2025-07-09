@@ -2,58 +2,49 @@ pipeline {
     agent {
         label 'silver'
     }
-    tools{
+    tools {
         jdk 'jdk-17'
         maven 'maven'
     }
     stages {
         stage('Cleanup') {
             steps {
-                // Clear old builds
                 cleanWs()
             }
         }
-        
+
         stage('Clone') {
             steps {
-                // Clone repository
                 git branch: 'main', url: 'git@github.com:AkhilMylaram/terraform.git'
             }
         }
-        
+
         stage('Test') {
             steps {
-                // Run tests
                 sh 'mvn test'
             }
         }
-        
+
         stage('Build') {
             steps {
-                // Build artifact
                 sh 'mvn install'
             }
         }
-        
+
         stage('Archive Artifacts') {
             steps {
-                // Create artifacts directory and copy files
                 sh '''
                     mkdir -p artifacts
                     find target -name "*.tar" -exec cp {} artifacts/ \\;
                 '''
-                
-                // Archive the artifacts directory
                 archiveArtifacts artifacts: 'artifacts/*', fingerprint: true
             }
         }
     }
-    
+
     post {
         always {
-            // Cleanup workspace after build
             cleanWs()
+        }
     }
 }
-
-
