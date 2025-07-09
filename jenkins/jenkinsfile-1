@@ -21,23 +21,29 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'mvn test'
+                dir('app') {
+                    sh 'mvn test'
+                }
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn install'
+                dir('app') {
+                    sh 'mvn install'
+                }
             }
         }
 
         stage('Archive Artifacts') {
             steps {
-                sh '''
-                    mkdir -p artifacts
-                    find target -name "*.tar" -exec cp {} artifacts/ \\;
-                '''
-                archiveArtifacts artifacts: 'artifacts/*', fingerprint: true
+                dir('app') {
+                    sh '''
+                        mkdir -p artifacts
+                        find target -name "*.tar" -exec cp {} artifacts/ \\;
+                    '''
+                    archiveArtifacts artifacts: 'artifacts/*', fingerprint: true
+                }
             }
         }
     }
