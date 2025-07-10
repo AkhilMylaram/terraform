@@ -38,7 +38,7 @@ pipeline {
                 dir('app') {
                     sh '''
                         mkdir -p artifacts
-                        cp target/*.war  ../artifacts/
+                        cp target/*.war  artifacts/
                     '''
                     archiveArtifacts artifacts: 'artifacts/*', fingerprint: true
                 }
