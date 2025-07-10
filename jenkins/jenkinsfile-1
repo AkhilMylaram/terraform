@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'silver'
+        label 'any'
     }
     tools {
         jdk 'jdk-17'
