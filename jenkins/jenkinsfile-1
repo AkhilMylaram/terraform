@@ -38,7 +38,7 @@ pipeline {
                 dir('app') {
                     sh '''
                         mkdir -p artifacts
-                        find target -name "*.tar" -exec cp {} artifacts/ \\;
+                        cp target/*.war  ../artifacts/
                     '''
                     archiveArtifacts artifacts: 'artifacts/*', fingerprint: true
                 }
