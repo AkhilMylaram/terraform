@@ -25,3 +25,52 @@ You must install Trivy on the Jenkins agent/server. No special Jenkins configura
 
 
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+trivy scan 
+----------
+
+install trviy in your agent or server where you want to run the build
+
+#!/bin/bash
+sudo apt update
+sudo apt install wget apt-transport-https gnupg lsb-release -y
+
+wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+
+echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
+
+sudo apt update
+sudo apt install trivy -y
+
+-------------------------------------------------------------------------------------
+
+trivy to scan the docke image + the internall code i,e java code also use the below stage
+
+ stage('Trivy Scan') {
+            steps {
+                dir('app') {
+                    sh """
+                        trivy image --exit-code 1 --severity CRITICAL,HIGH --format json -o trivy-report.json ${DOCKER_IMAGE}:${DOCKER_TAG}
+                        trivy image --format template --template "@contrib/html.tpl" -o trivy-report.html ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    """
+                    archiveArtifacts artifacts: 'trivy-report.*', fingerprint: true
+                }
+            }
+        }
+
+trivy image --severity CRITICAL,HIGH --format table akhilmylaram/vprofile-app:latest
+generates reports locally
+
+
+to scan just on the docker image / not the java code use the below command
+
+trivy image --scanners vuln --vuln-type os --severity CRITICAL,HIGH akhilmylaram/vprofile-app:latest
+
+
+To see what Trivy is scanning by default, run:
+trivy image --list-all-pkgs akhilmylaram/vprofile-app:latest
+
+Or list all scanners:
+trivy image --help
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
