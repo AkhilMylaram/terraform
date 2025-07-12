@@ -74,3 +74,56 @@ Or list all scanners:
 trivy image --help
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+for sonarqube scanner
+
+docker run -d --name sonarqube \
+  -p 9000:9000 \
+  -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
+  sonarqube:community
+
+Open a browser: http://<your-server-ip>:9000
+
+Login with default credentials:
+
+Username: admin
+
+Password: admin
+
+Change the password when prompted.
+
+Go to “My Account” → “Security” → Generate a new token.
+
+Name it e.g., jenkins-token
+
+Copy the token (you’ll use this in Jenkins)
+
+-------
+Go to Jenkins Dashboard → Manage Jenkins → Global Tool Configuration
+
+Under SonarQube Scanner, click Add SonarQube Scanner
+
+Name: sonar
+
+Set the path to your sonar-scanner binary (if installed manually)
+
+OR allow Jenkins to auto-install
+
+---------
+Add SonarQube Server to Jenkins
+Go to Manage Jenkins → Configure System
+
+Search for SonarQube servers
+
+Click Add SonarQube
+
+Name: SonarQube
+
+Server URL: http://localhost:9000 (or your IP)
+
+Add the SonarQube Token as a Jenkins Secret Text Credential and select it here.
+
+for adding the quality gate
+open the created poject --settings -- webhooks
+http://<JENKINS_URL>/sonarqube-webhook/
+----------------------------------------------------------------------------
+

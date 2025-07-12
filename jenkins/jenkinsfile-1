@@ -32,6 +32,40 @@ pipeline {
             }
         }
 
+        stage('Checkstyle') {
+            steps {
+                dir('app') {
+                    sh 'mvn checkstyle:checkstyle'
+                    sh 'mv target/checkstyle-result.xml checkstyle-report.xml || true'
+                   // archiveArtifacts artifacts: 'app/checkstyle-report.xml', fingerprint: true
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('MySonarQube') {
+                    dir('app') {
+                        sh """
+                            echo "Running SonarQube Analysis..."
+                            mvn sonar:sonar -X \
+                              -Dsonar.projectKey=vprofile-app \
+                              -Dsonar.sources=src/main/java \
+                              -Dsonar.java.binaries=target
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+    steps {
+        timeout(time: 2, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+        }
+    }
+}
+
         stage('Docker Build') {
             steps {
                 dir('app') {
@@ -44,10 +78,9 @@ pipeline {
             steps {
                 dir('app') {
                     sh """
-                        trivy image --scanners vuln --vuln-type os --severity CRITICAL,HIGH ${DOCKER_IMAGE}:${DOCKER_TAG}
-
+                        trivy image --scanners vuln --severity CRITICAL,HIGH ${DOCKER_IMAGE}:${DOCKER_TAG} > trivy-report.txt || true
                     """
-                   // archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
+                    archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true
                 }
             }
         }

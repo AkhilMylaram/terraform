@@ -1,0 +1,46 @@
+jenkins server 
+add agent 
+best practice is to add the agent to run the pipeline
+other agent to build the docker files and push the docker images
+other agent is for production to deploy to kubenetes
+
+
+add the jdk , mvn
+plugins -- zen timestamp, docker , kubenetes , pipeline stage view , sonarqube , quality gate
+
+env variables
+--------------
+
+# Jenkins Pipeline Environment Variables and Configuration References
+
+| Variable Name   | Defined Where                                  | Jenkins Configuration Name / ID Used             | Purpose                                                                 |
+|----------------|--------------------------------------------------|--------------------------------------------------|-------------------------------------------------------------------------|
+| `DOCKER_IMAGE`  | `environment {}` block in Jenkinsfile           | Literal: `akhilmylaram/vprofile-app`             | Docker image name to be built and pushed                               |
+| `DOCKER_TAG`    | `environment {}` block in Jenkinsfile           | Generated dynamically in pipeline                | Docker image tag includes job name, build number, and timestamp        |
+| `DOCKER_USER`   | `withCredentials` block                         | Credential ID: `dockerhub`                        | Docker Hub username for `docker login`                                 |
+| `DOCKER_PASS`   | `withCredentials` block                         | Credential ID: `dockerhub`                        | Docker Hub password for `docker login`                                 |
+| `SONAR_TOKEN`   | Inside `withSonarQubeEnv('MySonarQube')` block | Credential ID: `sonar-token`                      | Token for authenticating to SonarQube                                  |
+| `SONAR_HOST_URL`| Implicit via `withSonarQubeEnv()`              | SonarQube Server Name: `MySonarQube`             | Injected from Jenkins → Configure System → SonarQube installations     |
+
+
+💡 Configuration Locations Summary
+DockerHub Credentials:
+
+Go to: Jenkins > Manage Jenkins > Credentials
+
+ID used: dockerhub (username & password pair)
+
+SonarQube Token:
+
+Go to: Jenkins > Manage Jenkins > Credentials
+
+ID used: sonar-token (secret text credential)
+
+SonarQube Server:
+
+Go to: Jenkins > Manage Jenkins > Configure System > SonarQube Servers
+
+Name used: MySonarQube
+
+URL: http://3.239.79.158:9000
+
