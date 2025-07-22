@@ -43,17 +43,23 @@ The YAML files in this project (like the Grafana service definition) represent a
 graph TD
     A[Manual YAML] -->|Evolution| B[Helm Charts]
     B -->|Enterprise Scale| C[Operator Pattern]
+    C -->|Cloud Native| D[GitOps with Flux/ArgoCD]
     
-    A -->|Challenges| D[Maintenance Overhead]
-    A -->|Challenges| E[Version Control Issues]
+    A -->|Challenges| E[Maintenance Overhead]
+    A -->|Challenges| F[Version Control Issues]
     
-    B -->|Benefits| F[Easy Upgrades]
-    B -->|Benefits| G[Templating]
-    B -->|Benefits| H[Version Rollbacks]
+    B -->|Benefits| G[Easy Upgrades]
+    B -->|Benefits| H[Templating]
+    B -->|Benefits| I[Version Rollbacks]
     
-    C -->|Benefits| I[Automated Operations]
-    C -->|Benefits| J[Custom Resources]
+    C -->|Benefits| J[Automated Operations]
+    C -->|Benefits| K[Custom Resources]
+    
+    D -->|Benefits| L[Declarative Config]
+    D -->|Benefits| M[Drift Detection]
 ```
+
+![Helm Benefits](https://helm.sh/img/helm-overview.svg)
 
 Helm would be the recommended approach for production because:
 
@@ -268,7 +274,7 @@ gantt
     title Migration from YAML to Helm Charts
     dateFormat  YYYY-MM-DD
     section Planning
-    Audit current setup           :a1, 2023-06-01, 7d
+    Audit current setup           :a1, 2024-06-01, 7d
     Document configurations       :a2, after a1, 5d
     Create values files          :a3, after a2, 3d
     section Implementation
@@ -279,7 +285,13 @@ gantt
     Schedule maintenance window  :c1, after b3, 2d
     Deploy to production         :c2, after c1, 1d
     Verify functionality         :c3, after c2, 2d
+    section Post-Deployment
+    Configure Thanos             :d1, after c3, 3d
+    Setup OpenTelemetry          :d2, after d1, 4d
+    Implement Tempo tracing      :d3, after d2, 3d
 ```
+
+![Migration Timeline](https://miro.medium.com/v2/resize:fit:1400/1*QVFjsW8gyIXuReFJ4UXwVQ.png)
 
 ### 📝 Detailed Migration Steps
 
