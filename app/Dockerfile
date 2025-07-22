@@ -21,7 +21,10 @@ RUN chown vprofile:vprofile /usr/local/tomcat/webapps/ROOT.war
 
 USER vprofile
 
-EXPOSE 8080
+# Set JVM options for Prometheus metrics
+ENV CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9404 -Dcom.sun.management.jmxremote.rmi.port=9404 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname=localhost"
+
+EXPOSE 8080 9404
 CMD ["catalina.sh", "run"]
 
 

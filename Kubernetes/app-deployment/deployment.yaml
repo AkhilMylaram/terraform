@@ -11,12 +11,18 @@ spec:
     metadata:
       labels:
         app: vproapp
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
     spec:
       containers:
         - name: vproapp
           image: akhilmylaram/vprofile-app:v2
           ports:
             - containerPort: 8080
+            - containerPort: 9404
+              name: jmx
           resources:
             requests:
               memory: "128Mi"

@@ -1,0 +1,112 @@
+prometheus:
+  prometheusSpec:
+    replicas: 2
+    retention: 30d
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+    podMonitorSelector:
+      matchLabels:
+        release: prometheus
+    serviceMonitorSelector:
+      matchLabels:
+        release: prometheus
+    ruleSelector:
+      matchLabels:
+        release: prometheus
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - prometheus
+          topologyKey: kubernetes.io/hostname
+
+alertmanager:
+  alertmanagerSpec:
+    replicas: 2
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+grafana:
+  enabled: true
+  replicas: 2
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress-class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - grafana.example.com
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - grafana.example.com
+
+prometheusOperator:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+nodeExporter:
+  enabled: true
+  resources:
+    limits:
+      cpu: 200m
+      memory: 180Mi
+    requests:
+      cpu: 100m
+      memory: 180Mi
+
+kubeStateMetrics:
+  enabled: true
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
