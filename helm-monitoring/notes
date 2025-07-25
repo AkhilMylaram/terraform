@@ -12,5 +12,4 @@ this will assing the pid see it in ps -ef
 kill to stop it
 kill pid or kill -f pid
 
-kubectl port-forward -n monitoring svc/prometheus-server 9090:9090
 
