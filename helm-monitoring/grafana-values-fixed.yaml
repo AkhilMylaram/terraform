@@ -1,0 +1,110 @@
+persistence:
+  enabled: true
+  size: 5Gi
+
+service:
+  type: ClusterIP
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+replicas: 1
+
+adminPassword: "admin"
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server.monitoring.svc.cluster.local
+      access: proxy
+      isDefault: true
+
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+
+dashboards:
+  default:
+    vprofile-dashboard:
+      json: |
+        {
+          "annotations": {
+            "list": []
+          },
+          "editable": true,
+          "gnetId": null,
+          "graphTooltip": 0,
+          "id": 1,
+          "links": [],
+          "panels": [
+            {
+              "datasource": "Prometheus",
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {}
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+              },
+              "id": 2,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "single"
+                }
+              },
+              "targets": [
+                {
+                  "expr": "up",
+                  "interval": "",
+                  "legendFormat": "{{instance}}",
+                  "refId": "A"
+                }
+              ],
+              "title": "Service Status",
+              "type": "timeseries"
+            }
+          ],
+          "refresh": "5s",
+          "schemaVersion": 27,
+          "style": "dark",
+          "tags": [],
+          "templating": {
+            "list": []
+          },
+          "time": {
+            "from": "now-15m",
+            "to": "now"
+          },
+          "timepicker": {},
+          "timezone": "",
+          "title": "VProfile Dashboard",
+          "uid": "vprofile",
+          "version": 1
+        }

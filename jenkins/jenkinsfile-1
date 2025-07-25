@@ -37,7 +37,7 @@ pipeline {
                 dir('app') {
                     sh 'mvn checkstyle:checkstyle'
                     sh 'mv target/checkstyle-result.xml checkstyle-report.xml || true'
-                   // archiveArtifacts artifacts: 'app/checkstyle-report.xml', fingerprint: true
+                    // archiveArtifacts artifacts: 'app/checkstyle-report.xml', fingerprint: true
                 }
             }
         }
@@ -45,26 +45,29 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('MySonarQube') {
-                    dir('app') {
-                        sh """
-                            echo "Running SonarQube Analysis..."
-                            mvn sonar:sonar -X \
-                              -Dsonar.projectKey=vprofile-app \
-                              -Dsonar.sources=src/main/java \
-                              -Dsonar.java.binaries=target
-                        """
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        dir('app') {
+                            sh """
+                                echo "Running SonarQube Analysis..."
+                                mvn sonar:sonar -X \\
+                                  -Dsonar.projectKey=vprofile-app \\
+                                  -Dsonar.sources=src/main/java \\
+                                  -Dsonar.java.binaries=target \\
+                                  -Dsonar.login=$SONAR_TOKEN
+                            """
+                        }
                     }
                 }
             }
         }
-        
-        stage('Quality Gate') {
-    steps {
-        timeout(time: 2, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true
+
+        stage('Quality Gate Check: vprofile-app') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
         }
-    }
-}
 
         stage('Docker Build') {
             steps {

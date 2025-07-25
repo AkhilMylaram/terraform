@@ -1,8 +1,10 @@
-# 📊 Prometheus and Grafana Implementation Approaches
+# 📊 Prometheus and Grafana Implementation Approaches (2024)
 
 ![Monitoring Banner](https://raw.githubusercontent.com/prometheus/prometheus/main/documentation/images/prometheus-logo.png)
 
 ## 📢 Latest Updates (2024)
+
+![Observability Stack](https://grafana.com/static/img/logos/grafana_logo_swirl.svg)
 
 > **Note:** These updates represent the latest best practices for enterprise monitoring
 
@@ -12,6 +14,10 @@
 - **Cortex/Mimir** adoption for multi-tenancy and horizontal scaling
 - **OpenTelemetry** integration for unified observability framework
 - **Grafana Tempo** for distributed tracing complements metrics and logs
+- **Grafana Loki 3.x** with improved query performance and index storage
+- **Grafana OnCall** integration for advanced alerting workflows
+
+![Observability Pillars](https://grafana.com/static/assets/img/blog/three-pillars-of-observability.png)
 
 ## 🏭 Production-Grade Implementation Options
 
@@ -143,6 +149,8 @@ helm install opentelemetry-collector open-telemetry/opentelemetry-collector \
 
 ## 💻 Customizing Helm Deployments (2024)
 
+![Helm Architecture](https://d33wubrfki0l68.cloudfront.net/61b0a28687f272a0650f5b64474743930a383f34/e3e55/img/helm-architecture.svg)
+
 ### 📚 Basic Configuration
 
 ![Configuration Diagram](https://grafana.com/static/assets/img/blog/deployment-strategies.png)
@@ -252,20 +260,24 @@ grafana:
 
 ### 💯 Comparison of Approaches
 
-| Feature | Manual YAML | Helm Charts | Operator Pattern |
-|---------|------------|-------------|------------------|
-| Setup Complexity | ⭐ | ⭐⭐ | ⭐⭐⭐ |
-| Maintenance Effort | ⭐⭐⭐ | ⭐⭐ | ⭐ |
-| Scalability | ⭐ | ⭐⭐ | ⭐⭐⭐ |
-| Upgrade Ease | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| Configuration Flexibility | ⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
-| Enterprise Readiness | ⭐ | ⭐⭐ | ⭐⭐⭐ |
-| Multi-cluster Support | ⭐ | ⭐⭐ | ⭐⭐⭐ |
-| GitOps Integration | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+![Comparison Chart](https://miro.medium.com/v2/resize:fit:1400/1*OwxP-m8xpj7LJiXZs0TbHA.png)
 
-![Prometheus and Grafana Architecture](./infra.svg)
+| Feature | Manual YAML | Helm Charts | Operator Pattern | GitOps (ArgoCD/Flux) |
+|---------|------------|-------------|------------------|----------------------|
+| Setup Complexity | ⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| Maintenance Effort | ⭐⭐⭐ | ⭐⭐ | ⭐ | ⭐ |
+| Scalability | ⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+| Upgrade Ease | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Configuration Flexibility | ⭐⭐⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
+| Enterprise Readiness | ⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Multi-cluster Support | ⭐ | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| GitOps Integration | ⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Drift Detection | ⭐ | ⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
+| Audit Trail | ⭐ | ⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
 
-*Figure: Prometheus and Grafana deployment architecture in Kubernetes*
+![Prometheus and Grafana Architecture 2024](./monitoring-architecture-2024.svg)
+
+*Figure: Modern Prometheus and Grafana deployment architecture in Kubernetes (2024)*
 
 ### 📊 Step-by-Step Migration Plan
 
@@ -331,6 +343,8 @@ gantt
 
 ## 📋 Implementation Checklist
 
+![Implementation Roadmap](https://miro.medium.com/v2/resize:fit:1400/1*snhW5R4DJAFOFbTwWGKbyw.png)
+
 - [x] Create namespace with resource quotas
 - [x] Deploy Prometheus with HA configuration
 - [x] Deploy Grafana with persistent storage
@@ -341,8 +355,15 @@ gantt
 - [x] Set up notification channels
 - [x] Implement backup strategy for configurations
 - [x] Document access and management procedures
+- [x] Configure Thanos for long-term storage
+- [x] Set up OpenTelemetry collectors
+- [x] Implement Tempo for distributed tracing
+- [x] Configure Loki for log aggregation
+- [x] Implement GitOps workflow with ArgoCD/Flux
 
 ## 🔄 Ongoing Maintenance
+
+![Maintenance Cycle](https://miro.medium.com/v2/resize:fit:1400/1*OwxP-m8xpj7LJiXZs0TbHA.png)
 
 ### Regular Tasks
 
@@ -350,21 +371,36 @@ gantt
    - Review alert history
    - Check resource usage of monitoring components
    - Verify backup completion
+   - Monitor Thanos compaction jobs
+   - Review OpenTelemetry collector health
 
 2. **Monthly**
    - Review dashboard relevance
    - Update Grafana plugins
    - Check for Helm chart updates
+   - Rotate service accounts and credentials
+   - Test disaster recovery procedures
 
 3. **Quarterly**
    - Major version upgrades
    - Review retention policies
    - Audit access controls
+   - Performance optimization
+   - Capacity planning review
 
-## 📚 Additional Resources
+![Maintenance Dashboard](https://grafana.com/api/dashboards/13639/images/9523/image)
+
+## 📚 Additional Resources & References
+
+![Resources](https://prometheus.io/assets/grafana_prometheus.png)
 
 - [Prometheus Helm Chart Documentation](https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus)
 - [Grafana Helm Chart Documentation](https://github.com/grafana/helm-charts/tree/main/charts/grafana)
 - [Prometheus Operator Documentation](https://prometheus-operator.dev/)
 - [Grafana Dashboard Examples](https://grafana.com/grafana/dashboards/)
 - [Prometheus Query Language Documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/)
+- [Thanos Documentation](https://thanos.io/tip/thanos/getting-started.md/)
+- [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
+- [Grafana Tempo Documentation](https://grafana.com/docs/tempo/latest/)
+- [Grafana Loki Documentation](https://grafana.com/docs/loki/latest/)
+- [ArgoCD for GitOps](https://argo-cd.readthedocs.io/en/stable/)

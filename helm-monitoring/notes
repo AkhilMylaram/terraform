@@ -1,0 +1,16 @@
+forward the port if you using the kind cluster
+
+kubectl port-forward -n monitoring svc/grafana 3000:80
+
+-n is namespace
+
+
+kubectl port-forward -n monitoring svc/grafana 3000:80 &
+
+& - to run it in backgroud
+this will assing the pid see it in ps -ef
+kill to stop it
+kill pid or kill -f pid
+
+kubectl port-forward -n monitoring svc/prometheus-server 9090:9090
+
