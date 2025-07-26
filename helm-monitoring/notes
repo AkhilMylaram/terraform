@@ -1,15 +1,29 @@
 forward the port if you using the kind cluster
 
-kubectl port-forward -n monitoring svc/grafana 3000:80
+# Port-forward Prometheus to localhost:9090
+kubectl port-forward --address 0.0.0.0 service/prometheus-server 9090:80 -n monitoring &
 
--n is namespace
+# Port-forward Grafana to localhost:3000
+kubectl port-forward --address 0.0.0.0 service/grafana 3000:80 -n monitoring &
 
 
-kubectl port-forward -n monitoring svc/grafana 3000:80 &
 
-& - to run it in backgroud
-this will assing the pid see it in ps -ef
-kill to stop it
-kill pid or kill -f pid
+or
+
+Change Grafana and Prometheus services to NodePort
+Run these commands to patch the services from ClusterIP to NodePort and assign ports within your mapped range:
+
+kubectl -n monitoring patch svc grafana -p '{"spec":{"type":"NodePort","ports":[{"port":80,"targetPort":80,"nodePort":30001}]}}'
+kubectl -n monitoring patch svc prometheus-server -p '{"spec":{"type":"NodePort","ports":[{"port":80,"targetPort":80,"nodePort":30003}]}}'
+
+
+
+Grafana has prebuilt dashboards:
+
+🔹 Kubernetes Cluster Monitoring → Dashboard ID 6417
+🔹 Node Exporter Metrics → Dashboard ID 1860
+🔹 Pod/Container Monitoring → Dashboard ID 315
+
+➡ In Grafana → Dashboards → Import → Paste Dashboard ID → Select Prometheus Data Source → Import
 
 
