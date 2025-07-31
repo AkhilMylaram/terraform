@@ -21,7 +21,10 @@ kubectl apply -f prometheus/
 kubectl apply -f grafana/
 
 echo "Monitoring stack deployed successfully!"
+echo "Applying Prometheus configuration..."
+kubectl apply -f prometheus/configmap.yaml
 echo "Restarting Prometheus to reload configuration..."
 kubectl rollout restart deployment/prometheus -n monitoring
+kubectl rollout status deployment/prometheus -n monitoring
 echo "Access Prometheus at: http://localhost:30900"
 echo "Access Grafana at: http://localhost:30300 (admin/admin123)"

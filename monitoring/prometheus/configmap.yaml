@@ -25,43 +25,16 @@ data:
         target_label: __metrics_path__
         regex: (.+)
     - job_name: 'node-exporter'
-      kubernetes_sd_configs:
-      - role: endpoints
-        namespaces:
-          names:
-          - monitoring
-      relabel_configs:
-      - source_labels: [__meta_kubernetes_service_name]
-        action: keep
-        regex: node-exporter
+      static_configs:
+      - targets: ['node-exporter.monitoring.svc.cluster.local:9100']
     - job_name: 'kube-state-metrics'
       static_configs:
       - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
     - job_name: 'vprofile-app'
-      kubernetes_sd_configs:
-      - role: service
-        namespaces:
-          names:
-          - default
-      relabel_configs:
-      - source_labels: [__meta_kubernetes_service_name]
-        action: keep
-        regex: vprofile.*app.*
-      - source_labels: [__meta_kubernetes_service_port_name]
-        action: keep
-        regex: http
+      static_configs:
+      - targets: ['vproapp.default.svc.cluster.local:8080']
       metrics_path: /actuator/prometheus
     - job_name: 'mysql'
-      kubernetes_sd_configs:
-      - role: service
-        namespaces:
-          names:
-          - default
-      relabel_configs:
-      - source_labels: [__meta_kubernetes_service_name]
-        action: keep
-        regex: vprofile.*db.*
-      - source_labels: [__meta_kubernetes_service_port_name]
-        action: keep
-        regex: mysql
+      static_configs:
+      - targets: ['vprodb.default.svc.cluster.local:3306']
       metrics_path: /metrics
