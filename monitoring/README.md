@@ -12,6 +12,19 @@ Enterprise-grade monitoring solution with full observability for VProfile applic
 - **Grafana**: http://localhost:30300 (admin/admin123) - Dashboards and visualization
 - **AlertManager**: http://localhost:30093 - Alert management and routing
 
+using kind cluster
+kubectl port-forward --address 0.0.0.0 service/prometheus-service 30900:9090 -n monitoring &
+kubectl port-forward --address 0.0.0.0 service/grafana-service 30300:3000 -n monitoring &
+
+format:
+kubectl port-forward [resource] [LOCAL_PORT]:[POD_PORT]
+
+access with above host and port  
+http://localhost:30900 -- promitheus
+http://localhost:30300 -- grafana
+
+
+
 ## Stack Components
 
 ### Core Monitoring
