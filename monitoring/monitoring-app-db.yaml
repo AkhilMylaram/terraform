@@ -23,10 +23,11 @@ spec:
         - containerPort: 9104
         env:
         - name: DATA_SOURCE_NAME
-          value: "exporter:exporterpass@tcp(vprodb.default.svc.cluster.local:3306)/accounts"
+          value: "exporter:exporterpass@tcp(vprodb.default.svc.cluster.local:3306)/"
         args:
         - --collect.global_status
         - --collect.global_variables
+        - --web.listen-address=0.0.0.0:9104
 ---
 # MySQL Exporter Service
 apiVersion: v1
