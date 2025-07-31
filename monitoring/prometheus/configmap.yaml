@@ -38,10 +38,30 @@ data:
       static_configs:
       - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
     - job_name: 'vprofile-app'
-      static_configs:
-      - targets: ['vprofile-app-service.default.svc.cluster.local:8080']
+      kubernetes_sd_configs:
+      - role: service
+        namespaces:
+          names:
+          - default
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name]
+        action: keep
+        regex: vprofile.*app.*
+      - source_labels: [__meta_kubernetes_service_port_name]
+        action: keep
+        regex: http
       metrics_path: /actuator/prometheus
     - job_name: 'mysql'
-      static_configs:
-      - targets: ['vprofile-db-service.default.svc.cluster.local:9104']
+      kubernetes_sd_configs:
+      - role: service
+        namespaces:
+          names:
+          - default
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name]
+        action: keep
+        regex: vprofile.*db.*
+      - source_labels: [__meta_kubernetes_service_port_name]
+        action: keep
+        regex: mysql
       metrics_path: /metrics
