@@ -1,0 +1,61 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vprofile-app-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: vprofile-app
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: vprofile-db-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: vprofile-db
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - port: mysql
+    path: /metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: node-exporter-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kube-state-metrics-monitor
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+  endpoints:
+  - port: http-metrics
+    path: /metrics
+    interval: 30s
