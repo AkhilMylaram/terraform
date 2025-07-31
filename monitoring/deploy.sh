@@ -20,6 +20,9 @@ kubectl apply -f prometheus/
 # Deploy Grafana
 kubectl apply -f grafana/
 
+# Deploy App and DB Monitoring
+kubectl apply -f monitoring-app-db.yaml
+
 echo "Monitoring stack deployed successfully!"
 echo "Applying Prometheus configuration..."
 kubectl apply -f prometheus/configmap.yaml
