@@ -34,7 +34,7 @@ data:
       static_configs:
       - targets: ['vproapp.default.svc.cluster.local:8080']
       metrics_path: /actuator/prometheus
-    - job_name: 'mysql'
+    - job_name: 'mysql-exporter'
       static_configs:
-      - targets: ['vprodb.default.svc.cluster.local:3306']
+      - targets: ['mysql-exporter.monitoring.svc.cluster.local:9104']
       metrics_path: /metrics
