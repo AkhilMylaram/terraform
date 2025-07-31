@@ -23,6 +23,9 @@ kubectl apply -f prometheus/
 # Deploy Grafana
 kubectl apply -f grafana/
 
+# Deploy MySQL Init ConfigMap
+kubectl apply -f mysql-init-configmap.yaml
+
 # Deploy App and DB Monitoring
 kubectl apply -f monitoring-app-db.yaml
 
