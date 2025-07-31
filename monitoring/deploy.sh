@@ -14,6 +14,9 @@ kubectl apply -f kube-state-metrics/
 # Deploy AlertManager
 kubectl apply -f alertmanager/
 
+# Deploy Prometheus RBAC
+kubectl apply -f prometheus/rbac.yaml
+
 # Deploy Prometheus
 kubectl apply -f prometheus/
 

@@ -13,6 +13,7 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccountName: prometheus
       containers:
       - name: prometheus
         image: prom/prometheus:latest
@@ -30,6 +31,8 @@ spec:
         - '--web.console.templates=/etc/prometheus/consoles'
         - '--storage.tsdb.retention.time=200h'
         - '--web.enable-lifecycle'
+        - '--web.route-prefix=/'
+        - '--storage.tsdb.no-lockfile'
       volumes:
       - name: config-volume
         configMap:
