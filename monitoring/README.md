@@ -23,7 +23,7 @@ access with above host and port
 http://localhost:30900 -- promitheus
 http://localhost:30300 -- grafana
 
-
+also you can configure this with default promitheus port 9090 to 80 and grafana
 
 ## Stack Components
 
