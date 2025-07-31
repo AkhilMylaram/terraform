@@ -23,14 +23,17 @@ spec:
         - containerPort: 9104
         env:
         - name: DATA_SOURCE_NAME
-          value: "root:admin123@tcp(vprodb.default.svc.cluster.local:3306)/"
+          value: "admin:admin123@tcp(vprodb.default.svc.cluster.local:3306)/accounts"
         args:
+        - --collect.global_status
+        - --collect.global_variables
+        - --collect.slave_status
         - --collect.info_schema.processlist
-        - --collect.info_schema.innodb_metrics
-        - --collect.info_schema.tablestats
         - --collect.info_schema.tables
-        - --collect.info_schema.userstats
-        - --collect.engine_innodb_status
+        - --collect.info_schema.innodb_metrics
+        - --collect.info_schema.innodb_tablespaces
+        - --collect.info_schema.innodb_cmp
+        - --collect.info_schema.innodb_cmpmem
 ---
 # MySQL Exporter Service
 apiVersion: v1
