@@ -10,15 +10,14 @@ FROM tomcat:9.0-jdk17
 # Create a non-root user and group (UID/GID 1010)
 RUN groupadd -g 1010 vprofile && useradd -u 1010 -g 1010 -d /home/vprofile -m vprofile
 
-# Remove default ROOT webapp and set permissions
-RUN rm -rf /usr/local/tomcat/webapps/ROOT && \
-    mkdir -p /usr/local/tomcat/webapps && \
+# Remove default ROOT webapp and extract your WAR
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
+COPY --from=builder /app/target/*.war /tmp/app.war
+RUN cd /usr/local/tomcat/webapps && \
+    unzip /tmp/app.war -d ROOT && \
+    rm /tmp/app.war && \
     chown -R vprofile:vprofile /usr/local/tomcat && \
     chmod -R 755 /usr/local/tomcat
-
-# Copy the WAR file as ROOT.war
-COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
-RUN chown vprofile:vprofile /usr/local/tomcat/webapps/ROOT.war
 
 USER vprofile
 
