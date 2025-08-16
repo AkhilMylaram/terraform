@@ -15,19 +15,11 @@ RUN mvn clean package -DskipTests
 # Production stage
 FROM tomcat:9-jre11-slim
 
-# Create non-root user for security
-RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
-
-# Remove default webapps and set permissions
-RUN rm -rf /usr/local/tomcat/webapps/* && \
-    chown -R tomcat:tomcat /usr/local/tomcat
+# Remove default webapps
+RUN rm -rf /usr/local/tomcat/webapps/*
 
 # Copy WAR file
 COPY --from=BUILD_IMAGE /app/target/vprofile-v2.war /usr/local/tomcat/webapps/ROOT.war
-RUN chown tomcat:tomcat /usr/local/tomcat/webapps/ROOT.war
-
-# Switch to non-root user
-USER tomcat
 
 # Expose port
 EXPOSE 8080
