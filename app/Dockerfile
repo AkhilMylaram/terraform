@@ -1,42 +1,36 @@
-# Stage 1: Build the application
-FROM maven:3.9.6-eclipse-temurin-17 AS builder
+# Build stage
+FROM openjdk:11-jdk-slim AS BUILD_IMAGE
+
+# Install Maven and clean up in single layer
+RUN apt-get update && \
+    apt-get install -y maven && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy source and build
+COPY . /app
 WORKDIR /app
-COPY . .
 RUN mvn clean package -DskipTests
 
-# Stage 2: Use official Tomcat, run as non-root
-FROM tomcat:9.0-jdk17
+# Production stage
+FROM tomcat:9-jre11-slim
 
-# Create a non-root user and group (UID/GID 1010)
-RUN groupadd -g 1010 vprofile && useradd -u 1010 -g 1010 -d /home/vprofile -m vprofile
+# Create non-root user for security
+RUN groupadd -r tomcat && useradd -r -g tomcat tomcat
 
-# Remove default ROOT webapp and extract your WAR
-RUN rm -rf /usr/local/tomcat/webapps/ROOT
-COPY --from=builder /app/target/*.war /tmp/app.war
-RUN mkdir -p /usr/local/tomcat/webapps/ROOT && \
-    cd /usr/local/tomcat/webapps/ROOT && \
-    jar -xf /tmp/app.war && \
-    rm /tmp/app.war && \
-    chown -R vprofile:vprofile /usr/local/tomcat && \
-    chmod -R 755 /usr/local/tomcat
+# Remove default webapps and set permissions
+RUN rm -rf /usr/local/tomcat/webapps/* && \
+    chown -R tomcat:tomcat /usr/local/tomcat
 
-USER vprofile
+# Copy WAR file
+COPY --from=BUILD_IMAGE /app/target/vprofile-v2.war /usr/local/tomcat/webapps/ROOT.war
+RUN chown tomcat:tomcat /usr/local/tomcat/webapps/ROOT.war
 
-# Set JVM options for Prometheus metrics
-ENV CATALINA_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9404 -Dcom.sun.management.jmxremote.rmi.port=9404 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Djava.rmi.server.hostname=localhost"
+# Switch to non-root user
+USER tomcat
 
-EXPOSE 8080 9404
+# Expose port
+EXPOSE 8080
+
+# Start Tomcat
 CMD ["catalina.sh", "run"]
-
-
-# Create a non-root user and group (UID/GID 1000 is a common convention)
-# Create a non-root user and group (UID/GID 1000 is a common convention)
-# Using a non-root user limits the permissions available inside the container.
-# Running as non-root is a best practice for container security.
-# This Dockerfile follows security best practices by avoiding the use of the root user.
-
-# Using a non-root user in this container provides several security benefits:
-# 1. If an attacker tries to install malware or additional software, they cannot do so without root privileges.
-# 2. Attempts to modify or delete critical system files will fail, as the non-root user lacks the necessary permissions.
-# 3. The attacker cannot bind to privileged ports (below 1024), limiting the ability to run certain network services.
-# 4. Access to sensitive host resources, such as device files or kernel interfaces, is restricted for non-root users.
