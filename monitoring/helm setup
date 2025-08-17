@@ -1,0 +1,78 @@
+install the helm
+1. Add the Prometheus Community Helm Repo
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+2. Install kube-prometheus-stack
+
+This bundle includes Prometheus, Grafana, Node Exporter, Alertmanager, etc.
+
+helm install prometheus prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace
+
+
+This will install everything you need for basic monitoring.
+
+3. Check if everything is running
+kubectl get pods -n monitoring
+
+
+You should see pods like:
+
+prometheus-kube-prometheus-prometheus-*
+
+prometheus-grafana-*
+
+prometheus-kube-state-metrics-*
+etc
+
+🔍 Access Grafana UI (for dashboards)
+4. Port forward Grafana (for local access)
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+
+
+Then open your browser to:
+
+http://localhost:3000
+
+
+Default login:
+
+Username: admin
+
+Password: prom-operator
+
+You can get the actual admin password with:
+
+kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+
+📊 Start Monitoring Your Applications
+
+Grafana will already have dashboards for:
+
+Kubernetes Nodes
+
+Pods
+
+Cluster status
+
+etc.
+
+You can also:
+
+Create custom dashboards
+
+Add alerting rules
+
+Scrape custom metrics if your app exposes them at /metrics
+
+Would you like to:
+
+Expose Grafana or Prometheus outside the cluster (e.g. via Ingress)?
+
+Add custom app metrics (e.g., from a Node.js/Go app)?
+
+Add alerts to Slack, email, etc.?
+
+Let me know and I can help with that too.
