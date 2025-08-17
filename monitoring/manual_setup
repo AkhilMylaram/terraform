@@ -1,0 +1,102 @@
+Already the configuration has done to run from the scrach use below commands
+
+
+blacbox exporter downloaded link
+curl -LO https://github.com/prometheus/blackbox_exporter/releases/download/v0.25.0/blackbox_exporter-0.25.0.linux-amd64.tar.gz
+
+node exporter downloded link
+wget https://github.com/prometheus/node_exporter/releases/download/v1.9.1/node_exporter-1.9.1.linux-amd64.tar.gz
+
+prometheus downloaded link
+wget https://github.com/prometheus/prometheus/releases/download/v3.5.0/prometheus-3.5.0.linux-amd64.tar.gz
+
+
+prometheus can be installed as a seperate server or you can install in the same server also  if it is different server
+make sure that promethus know where the node expoerter is running and where the blackbox exporter is running and etc
+see the status-- target health of the connected expoerter
+
+
+promethus.yml
+# 📘 Prometheus + Blackbox Exporter Configuration Guide
+
+## 📌 Overview
+
+This guide outlines how to configure:
+
+- `prometheus.yml` to scrape:
+  - Prometheus itself
+  - Node Exporter
+  - Blackbox Exporter for HTTP `2xx` probes
+- The `blackbox.yml` file with a standard `http_2xx` probe
+
+---
+
+## 📁 1. `prometheus.yml` Configuration
+
+Add the following sections to your existing `prometheus.yml`:
+
+```yaml
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+        labels:
+          app: "prometheus"
+
+  - job_name: "node_exporter"
+    static_configs:
+      - targets: ["52.91.238.74:9100"]
+        labels:
+          app: "node_exporter"
+
+  - job_name: "blackbox_exporter"
+    metrics_path: /probe
+    params:
+      module: [http_2xx]  # Use http_2xx module defined in blackbox.yml
+    static_configs:
+      - targets:
+          - http://52.91.238.74:8080  # The endpoint to probe
+        labels:
+          app: "blackbox_probe"
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 52.91.238.74:9115  # Address of Blackbox Exporter
+
+2. blackbox.yml Configuration  in the backbox folder after installation edit the blackbox.yml configuration
+
+The blackbox.yml file is used by the Blackbox Exporter to define probe modules.
+
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: [200, 201, 202, 204]
+      method: GET
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: false
+      preferred_ip_protocol: "ip4"
+
+
+grafana installation
+-------------------
+
+sudo apt-get install -y adduser libfontconfig1 musl
+wget https://dl.grafana.com/grafana-enterprise/release/12.1.1/grafana-enterprise_12.1.1_16903967602_linux_amd64.deb
+sudo dpkg -i grafana-enterprise_12.1.1_16903967602_linux_amd64.deb
+
+user and password is admin for intial
+
+after the instalation configure the data source of prometheus
+then search for the node epxoerter dasboard for prometheus and paster the id after clicking on import dashboard
+also in import dashboard paste the backbox exporter dashboard id also
+
+nodeexporter: 1860
+blacbox exporter: 7587
+
