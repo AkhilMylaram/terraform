@@ -1,0 +1,195 @@
+Here is a clean, well-structured Markdown documentation for your setup.
+
+# 📘 Prometheus & Grafana Monitoring Setup (App Server + Monitoring Server)
+
+This guide explains how to set up a centralized monitoring solution using Prometheus and Grafana, where:
+
+- The **App Server** runs the applications and only the necessary exporters.
+- The **Monitoring Server** runs Prometheus and Grafana to collect and visualize metrics.
+
+---
+
+## 🖥️ App Server Setup
+
+Install only the required exporters on the App Server.
+
+### 1. Prerequisites
+
+- Kubernetes installed (Kind, K3s, MicroK8s, etc. — or simply Docker if deploying exporters without Kubernetes)
+- `kubectl` and `helm` installed and configured
+- Proper network access from **Monitoring Server** to App Server's exposed ports
+
+---
+
+### 2. Add Helm Repos
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+3. Install Node Exporter
+helm install node-exporter prometheus-community/prometheus-node-exporter \
+  --namespace monitoring --create-namespace
+
+
+This exposes system-level metrics on port 9100.
+
+4. Install Blackbox Exporter
+helm install blackbox-exporter prometheus-community/prometheus-blackbox-exporter \
+  --namespace monitoring --create-namespace
+
+
+This exposes the blackbox probing service on port 9115.
+
+5. Optional: API Server (if you have custom app exposing /metrics)
+
+Ensure your app exposes metrics at a path like /metrics
+
+Example: Flask, Spring Boot, or Go app with a Prometheus metrics endpoint
+
+Prometheus on the Monitoring Server will scrape this endpoint directly.
+
+📊 Monitoring Server Setup
+
+Install only Prometheus and Grafana to collect and visualize metrics from the App Server.
+
+1. Add Helm Repos (if not already)
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+2. Install Prometheus Only
+helm install prometheus prometheus-community/prometheus \
+  --namespace monitoring --create-namespace \
+  --set alertmanager.enabled=false \
+  --set prometheus-node-exporter.enabled=false \
+  --set kube-state-metrics.enabled=false \
+  --set prometheus-pushgateway.enabled=false
+
+
+Add the Grafana Helm Repository First
+
+Run the following commands:
+
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+
+
+Then re-run the install command:
+
+helm install grafana grafana/grafana \
+  --namespace monitoring --create-namespace
+
+
+Get Grafana admin password:
+
+kubectl get secret --namespace monitoring grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+
+
+Port-forward to access Grafana:
+
+kubectl port-forward -n monitoring svc/grafana 3000:80
+
+
+Access: http://localhost:3000
+
+🔌 Connecting Prometheus to App Server Exporters
+
+Add the App Server targets in Prometheus’s scrape configs (via values.yaml or ConfigMap):
+
+additionalScrapeConfigs:
+  - job_name: 'app-node-exporter'
+    static_configs:
+      - targets: ['<APP_SERVER_IP>:9100']
+
+  - job_name: 'blackbox-probes'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://your-api-service:PORT
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: <APP_SERVER_IP>:9115
+
+
+Then upgrade Prometheus with the updated config:
+
+helm upgrade prometheus prometheus-community/prometheus \
+  -n monitoring \
+  -f custom-values.yaml
+
+✅ Summary
+Component	App Server	Monitoring Server
+node-exporter	✅ Yes	❌ No (optional)
+blackbox-exporter	✅ Yes	❌ No (optional)
+API Server (/metrics)	✅ Optional	❌ No
+Prometheus	❌ No	✅ Yes
+Grafana	❌ No	✅ Yes
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+Step 1: Add the Prometheus Community Helm repo (if not already added)
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+Step 2: Install kube-state-metrics
+helm install kube-state-metrics prometheus-community/kube-state-metrics
+
+
+This will deploy kube-state-metrics in the default namespace by default, exposing metrics about your Kubernetes objects (pods, deployments, nodes, etc.).
+
+Step 3 (Optional): Expose kube-state-metrics outside the cluster
+
+If your Prometheus server is running outside the cluster and needs to scrape kube-state-metrics, expose its service via a NodePort:
+
+kubectl -n default edit svc kube-state-metrics
+
+
+Change:
+
+spec:
+  type: ClusterIP
+
+
+to
+
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30004  # or any free port > 30000
+
+
+Save and exit.
+
+Now kube-state-metrics is accessible at:
+
+http://<app-server-ip>:30004/metrics
+
+Step 4: Configure Prometheus to scrape kube-state-metrics
+
+Add this scrape job to your Prometheus config (prometheus.yml):
+
+  - job_name: 'kube-state-metrics'
+    static_configs:
+      - targets: ['<app-server-ip>:30004']
+
+
+Replace <app-server-ip> with your actual app server IP.
+
+Step 5: Restart Prometheus
+
+Reload or restart Prometheus to apply the new config.
+
+Now Prometheus will scrape cluster state metrics from kube-state-metrics, which you can visualize in Grafana dashboards!
+

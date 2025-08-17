@@ -99,4 +99,7 @@ also in import dashboard paste the backbox exporter dashboard id also
 
 nodeexporter: 1860
 blacbox exporter: 7587
+kube-state-metrics: 13332
 
+for kube-state-metrics in conifig file add the labeels of you cluster like mycluster 
+also in grafana dasboard -- seetings -- variables -- check for datasource ther change to your configured prometheus datasource

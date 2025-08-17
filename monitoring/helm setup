@@ -76,3 +76,41 @@ Add custom app metrics (e.g., from a Node.js/Go app)?
 Add alerts to Slack, email, etc.?
 
 Let me know and I can help with that too.
+
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+✅ Port-forward commands
+▶️ Grafana
+kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+
+
+Access at: http://localhost:3000
+
+Login:
+
+Username: admin
+
+Password:
+
+kubectl get secret -n monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+
+▶️ Prometheus
+kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090
+
+
+Access at: http://localhost:9090
+
+📌 Notes
+
+These commands must run in a terminal window (they block until you stop them with Ctrl+C)
+
+You can run them in the background or use tools like tmux or screen if needed
+
+Let me know if you'd like to create a shell script for this or expose more services.
+
+
+or
+
+another option is to edit the service file of node port of prometheus and grafana to the accessible ports like 30004 and 30005
+

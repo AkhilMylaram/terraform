@@ -1,0 +1,58 @@
+after running the prometheus by helm you will run the pods and deployments
+the configuratin of the helm will be present at configmaps
+
+k get cm -n monitoring
+kubectl -n monitoring get cm prometheus-server -o yaml | less
+  
+so to change or add the configuration rather than changing directly. we use the file and make changes init 
+because
+if we change directly. if deployment fails or cluster goes down we loose the date if we run the prometheus installation again
+
+if we have the file we can run the below commands to make the changes to this config map i,e prometheus.yml or configuration file 
+
+----
+helm upgrade prometheus prometheus-community/prometheus -n monitoring -f current-values.yaml
+kubectl -n monitoring rollout restart deployment prometheus-server
+
+========
+
+current-values.yaml
+serverFiles:
+  prometheus.yml:
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      scrape_timeout: 10s
+
+    rule_files:
+      - /etc/config/recording_rules.yml
+      - /etc/config/alerting_rules.yml
+      - /etc/config/rules
+      - /etc/config/alerts
+
+    scrape_configs:
+      - job_name: prometheus
+        static_configs:
+          - targets: ['localhost:9090']
+
+      - job_name: node-exporter
+        static_configs:
+          - targets: ['54.146.41.106:9100']
+
+      - job_name: blackbox-exporter
+        metrics_path: /probe
+        params:
+          module: [http_2xx]
+        static_configs:
+          - targets: ['http://54.146.41.106:30002']
+        relabel_configs:
+          - source_labels: [__address__]
+            target_label: __param_target
+          - target_label: __address__
+            replacement: 54.146.41.106:9115
+          - source_labels: [__param_target]
+            target_label: instance
+
+      - job_name: alertmanager
+        static_configs:
+          - targets: ['localhost:9093']
